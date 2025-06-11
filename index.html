@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Records with Filters</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9fafb;
+      padding: 20px;
+      margin: 0;
+      color: #212121;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      margin: 0 auto;
+      border: 1px solid #e0e7ff;
+    }
+    h2 {
+      margin-bottom: 10px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #212121;
+    }
+    .search-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #e8eaf6;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .search-panel input[type="search"] {
+      flex-grow: 1;
+      min-width: 150px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #b0bec5;
+      font-size: 14px;
+      font-weight: 700;
+      color: #212121;
+      transition: box-shadow 0.3s ease;
+    }
+    .search-panel input[type="search"]::placeholder {
+      color: #616161;
+      font-weight: 700;
+    }
+    .search-panel input[type="search"]:focus {
+      outline: none;
+      box-shadow: 0 0 6px #5e35b1;
+      border-color: #5e35b1;
+    }
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn-group button {
+      white-space: nowrap;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: transform 0.2s ease;
+    }
+    .btn-group button:hover {
+      transform: translateY(-2px);
+    }
+    .btn-outline-primary {
+      border-color: #5e35b1;
+      color: #5e35b1;
+    }
+    .btn-outline-primary:hover {
+      background-color: #5e35b1;
+      color: #fff;
+    }
+    .btn-outline-success {
+      border-color: #26a69a;
+      color: #26a69a;
+    }
+    .btn-outline-success:hover {
+      background-color: #26a69a;
+      color: #fff;
+    }
+    .btn-outline-secondary {
+      border-color: #78909c;
+      color: #78909c;
+    }
+    .btn-outline-secondary:hover {
+      background-color: #78909c;
+      color: #fff;
+    }
+    #disclaimer {
+      margin-top: 10px;
+      color: #212121;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    #disclaimer a {
+      color: #ff8f00;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    #disclaimer a:hover {
+      text-decoration: underline;
+    }
+    .filter-bar {
+      margin-bottom: 20px;
+      padding: 10px;
+      background: #eceff1;
+      border-radius: 10px;
+      border: 1px solid #cfd8dc;
+    }
+    .filter-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .filter-label {
+      font-weight: 700;
+      margin-right: 5px;
+      white-space: nowrap;
+      font-size: 14px;
+      color: #212121;
+    }
+    .dropdown-checklist {
+      position: relative;
+    }
+    .dropdown-toggle {
+      padding: 6px 12px;
+      border: 1px solid #b0bec5;
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      user-select: none;
+      min-width: 100px;
+      text-align: center;
+      transition: background-color 0.2s ease;
+      font-size: 14px;
+      font-weight: 700;
+      color: #212121;
+    }
+    .dropdown-toggle:hover {
+      background-color: #e8eaf6;
+    }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      z-index: 1000;
+      background: #ffffff;
+      border: 1px solid #b0bec5;
+      border-radius: 6px;
+      padding: 10px;
+      width: 220px;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 5px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .dropdown-menu.show {
+      display: block;
+    }
+    .dropdown-checklist label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      color: #212121;
+    }
+    .dropdown-checklist input[type="checkbox"] {
+      margin-right: 8px;
+    }
+    .range-values {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    #salaryMin, #salaryMax {
+      width: 80px;
+      border-radius: 6px;
+      border: 1px solid #b0bec5;
+      padding: 5px 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #212121;
+    }
+    #salaryMin:focus, #salaryMax:focus {
+      outline: none;
+      border-color: #5e35b1;
+      box-shadow: 0 0 6px #5e35b1;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      border-top: 1px solid #eceff1;
+      font-size: 14px;
+      text-align: left;
+      color: #212121;
+      font-weight: 700;
+    }
+    th {
+      background: #e8eaf6;
+      color: #212121;
+      font-weight: 700;
+    }
+    tr:hover {
+      background: #f5f5f5;
+    }
+    .avatar {
+      display: flex;
+      align-items: center;
+    }
+    .avatar img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      margin-right: 8px;
+      border: 1px solid #e0e7ff;
+    }
+    .salary {
+      color: #ff8f00;
+      font-weight: 700;
+    }
+    .status {
+      padding: 4px 8px;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-block;
+    }
+    .active { background-color: #26a69a; }
+    .onleave { background-color: #ff8f00; }
+    .resigned { background-color: #ef5350; }
+    .action-btn {
+      border: none;
+      background: none;
+      cursor: pointer;
+      margin: 0 5px;
+      font-size: 16px;
+      transition: transform 0.2s ease;
+    }
+    .action-btn:hover {
+      transform: scale(1.2);
+    }
+    .edit-btn { color: #5e35b1; }
+    .delete-btn { color: #ef5350; }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+    }
+    .modal-content {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 15px;
+      max-width: 90%;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+      border: 1px solid #e0e7ff;
+    }
+    .modal-content h3 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: #212121;
+      font-weight: 700;
+    }
+    .modal-content label {
+      font-size: 14px;
+      color: #212121;
+      font-weight: 700;
+    }
+    .modal-content input,
+    .modal-content select {
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid #b0bec5;
+      color: #212121;
+    }
+    #uploadHistoryList li {
+      padding: 5px 0;
+      border-bottom: 1px solid #eceff1;
+      font-size: 14px;
+      color: #212121;
+      font-weight: 700;
+    }
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      .card {
+        padding: 15px;
+      }
+      h2 {
+        font-size: 1.2rem;
+      }
+      .search-panel {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .search-panel input[type="search"] {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      .btn-group {
+        justify-content: space-between;
+        width: 100%;
+      }
+      .btn-group button {
+        flex-grow: 1;
+        font-size: 12px;
+        padding: 5px 8px;
+      }
+      .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filter-group {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .dropdown-toggle {
+        min-width: 80px;
+        font-size: 12px;
+        padding: 5px 8px;
+      }
+      .dropdown-menu {
+        width: 100%;
+        max-height: 150px;
+      }
+      #salaryMin, #salaryMax {
+        width: 70px;
+        font-size: 12px;
+      }
+      th, td {
+        font-size: 12px;
+        padding: 6px;
+      }
+      .avatar img {
+        width: 24px;
+        height: 24px;
+      }
+      .status {
+        font-size: 10px;
+        padding: 3px 6px;
+      }
+      .action-btn {
+        font-size: 12px;
+      }
+      .modal-content {
+        padding: 10px;
+      }
+      .modal-content h3 {
+        font-size: 1rem;
+      }
+      .modal-content label, .modal-content input, .modal-content select {
+        font-size: 12px;
+      }
+    }
+    @media (max-width: 480px) {
+      .btn-group button {
+        font-size: 10px;
+        padding: 4px 6px;
+      }
+      .filter-label {
+        font-size: 12px;
+      }
+      .dropdown-toggle {
+        font-size: 10px;
+        padding: 4px 6px;
+      }
+      th, td {
+        font-size: 10px;
+        padding: 4px;
+      }
+      .avatar img {
+        width: 20px;
+        height: 20px;
+      }
+      .status {
+        font-size: 8px;
+        padding: 2px 4px;
+      }
+      #pagination button {
+        font-size: 10px;
+        padding: 4px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Employee Records</h2>
+    <div class="search-panel">
+      <input type="search" id="searchInput" placeholder="Search employees..." aria-label="Search employees" />
+      <div class="btn-group">
+        <button type="button" class="btn btn-outline-primary" id="employeesBtn">Employees</button>
+        <button type="button" class="btn btn-outline-success" id="uploadBtn">Upload</button>
+        <button type="button" class="btn btn-outline-secondary" id="downloadBtn">Download</button>
+      </div>
+    </div>
+    <div id="disclaimer" style="display:none;"></div>
+
+    <div class="filter-bar">
+      <div class="filter-row">
+        <div class="filter-group align-items-center flex-wrap">
+          <span class="filter-label">Filter by:</span>
+          <div class="dropdown-checklist">
+            <div class="dropdown-toggle" aria-controls="department-menu">Department</div>
+            <div class="dropdown-menu" id="department-menu">
+              <label><input type="checkbox" class="filter-department" value="HR" /> HR</label>
+              <label><input type="checkbox" class="filter-department" value="IT" /> IT</label>
+              <label><input type="checkbox" class="filter-department" value="Finance" /> Finance</label>
+              <label><input type="checkbox" class="filter-department" value="Sales" /> Sales</label>
+              <label><input type="checkbox" class="filter-department" value="Marketing" /> Marketing</label>
+            </div>
+          </div>
+          <div class="dropdown-checklist">
+            <div class="dropdown-toggle" aria-controls="status-menu">Status</div>
+            <div class="dropdown-menu" id="status-menu">
+              <label><input type="checkbox" class="filter-status" value="Active" /> Active</label>
+              <label><input type="checkbox" class="filter-status" value="On Leave" /> On Leave</label>
+              <label><input type="checkbox" class="filter-status" value="Resigned" /> Resigned</label>
+            </div>
+          </div>
+          <div class="dropdown-checklist">
+            <div class="dropdown-toggle" aria-controls="date-menu">Joining Date</div>
+            <div class="dropdown-menu" id="date-menu">
+              <label>From: <input type="date" class="form-control" id="dateFrom" /></label>
+              <label>To: <input type="date" class="form-control" id="dateTo" /></label>
+            </div>
+          </div>
+          <div class="dropdown-checklist">
+            <div class="dropdown-toggle" aria-controls="salary-menu">Salary</div>
+            <div class="dropdown-menu" id="salary-menu">
+              <div class="range-values">
+                <input type="number" id="salaryMin" min="0" placeholder="Min salary" />
+                <span>–</span>
+                <input type="number" id="salaryMax" min="0" placeholder="Max salary" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="filter-group align-items-center">
+          <label for="sortBy" class="filter-label mb-0">Sort by:</label>
+          <select id="sortBy" class="form-select d-inline-block w-auto">
+            <option value="name-asc">Name (Asc)</option>
+            <option value="name-desc">Name (Desc)</option>
+            <option value="department-asc">Department (Asc)</option>
+            <option value="department-desc">Department (Desc)</option>
+            <option value="joining-asc">Joining Date (Asc)</option>
+            <option value="joining-desc">Joining Date (Desc)</option>
+            <option value="salary-asc">Salary (Asc)</option>
+            <option value="salary-desc">Salary (Desc)</option>
+            <option value="status-asc">Status (Asc)</option>
+            <option value="status-desc">Status (Desc)</option>
+          </select>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between">
+        <button class="btn btn-outline-secondary" onclick="clearFilters()">Clear Filters</button>
+      </div>
+    </div>
+
+    <table id="employeeTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Department</th>
+          <th>Joining Date</th>
+          <th>Salary</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div id="pagination" class="mt-3 d-flex justify-content-center gap-2"></div>
+  </div>
+
+  <div id="employeeFormModal" class="modal" role="dialog" aria-labelledby="modalTitle">
+    <div class="modal-content">
+      <h3 id="modalTitle">Add Employee</h3>
+      <form id="employeeForm">
+        <div class="mb-3">
+          <label for="empName" class="form-label">Name:</label>
+          <input type="text" id="empName" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="empDepartment" class="form-label">Department:</label>
+          <select id="empDepartment" class="form-select" required>
+            <option value="">Select Department</option>
+            <option>HR</option>
+            <option>IT</option>
+            <option>Finance</option>
+            <option>Sales</option>
+            <option>Marketing</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="empJoiningDate" class="form-label">Joining Date (YYYY-MM-DD):</label>
+          <input type="date" id="empJoiningDate" class="form-control" required />
+        </div>
+        <div class="mb-3">
+          <label for="empSalary" class="form-label">Salary:</label>
+          <input type="number" id="empSalary" class="form-control" required min="0" />
+        </div>
+        <div class="mb-3">
+          <label for="empStatus" class="form-label">Status:</label>
+          <select id="empStatus" class="form-select" required>
+            <option value="">Select Status</option>
+            <option>Active</option>
+            <option>On Leave</option>
+            <option>Resigned</option>
+          </select>
+        </div>
+        <div style="text-align: right;">
+          <button type="button" class="btn btn-secondary me-2" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submitBtn">Add Employee</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="uploadModal" class="modal" role="dialog" aria-labelledby="uploadModalTitle">
+    <div class="modal-content">
+      <h3 id="uploadModalTitle">Upload CSV File</h3>
+      <form id="uploadForm">
+        <div class="mb-3">
+          <label for="uploadFileInput" class="form-label">Select CSV File:</label>
+          <input type="file" id="uploadFileInput" class="form-control" accept=".csv" required />
+        </div>
+        <div style="text-align: right;">
+          <button type="button" class="btn btn-secondary me-2" id="uploadCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Upload</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="uploadHistoryModal" class="modal" role="dialog" aria-labelledby="uploadHistoryTitle">
+    <div class="modal-content">
+      <h3 id="uploadHistoryTitle">Uploaded Files History</h3>
+      <ul id="uploadHistoryList" style="list-style: none; padding: 0; max-height: 300px; overflow-y: auto;"></ul>
+      <div style="text-align: right;">
+        <button type="button" class="btn btn-secondary" id="uploadHistoryCloseBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const rowsPerPage = 5;
+    let currentPage = 1;
+    const BASE_URL = 'http://127.0.0.1:5000';
+
+    function renderTable(employees) {
+      const tbody = document.querySelector('#employeeTable tbody');
+      tbody.innerHTML = '';
+      if (employees.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7">No employees found.</td></tr>';
+        return;
+      }
+      employees.forEach((emp, index) => {
+        const statusClass = emp.status === 'Active' ? 'active' :
+                           emp.status === 'On Leave' ? 'onleave' :
+                           emp.status === 'Resigned' ? 'resigned' : '';
+        const avatarUrl = emp.avatar_url && emp.avatar_url.trim() !== ''
+          ? emp.avatar_url
+          : `https://randomuser.me/api/portraits/men/${(emp.id % 99)}.jpg`;
+
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-id', emp.id);
+        tr.setAttribute('data-name', emp.name);
+        tr.setAttribute('data-department', emp.department);
+        tr.setAttribute('data-date', emp.joiningDate);
+        tr.setAttribute('data-salary', emp.salary);
+        tr.setAttribute('data-status', emp.status);
+        tr.innerHTML = `
+          <td>${(currentPage - 1) * rowsPerPage + index + 1}</td>
+          <td class="avatar"><img src="${avatarUrl}" alt="${emp.name}" />${emp.name}</td>
+          <td>${emp.department}</td>
+          <td>${emp.joiningDate}</td>
+          <td class="salary">$${emp.salary.toLocaleString()}</td>
+          <td><span class="status ${statusClass}">${emp.status}</span></td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary edit-btn" data-id="${emp.id}">Edit</button>
+            <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${emp.id}">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+
+        // Add click handlers for edit and delete buttons
+        const editBtn = tr.querySelector('.edit-btn');
+        const deleteBtn = tr.querySelector('.delete-btn');
+
+        editBtn.addEventListener('click', () => {
+          editingId = emp.id;
+          document.getElementById('modalTitle').textContent = 'Edit Employee';
+          document.getElementById('submitBtn').textContent = 'Save Changes';
+          document.getElementById('empName').value = emp.name;
+          document.getElementById('empDepartment').value = emp.department;
+          document.getElementById('empJoiningDate').value = emp.joiningDate;
+          document.getElementById('empSalary').value = emp.salary;
+          document.getElementById('empStatus').value = emp.status;
+          modal.style.display = 'flex';
+        });
+
+        deleteBtn.addEventListener('click', async () => {
+          if (confirm(`Are you sure you want to delete employee "${emp.name}"?`)) {
+            try {
+              const response = await fetch(`${BASE_URL}/api/employees/${emp.id}`, {
+                method: 'DELETE'
+              });
+              if (!response.ok) {
+                throw new Error('Failed to delete employee');
+              }
+              await fetchEmployees(currentPage);
+              alert('Employee deleted successfully');
+            } catch (error) {
+              alert('Error deleting employee: ' + error.message);
+            }
+          }
+        });
+      });
+    }
+
+    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+      toggle.addEventListener('click', (e) => {
+        const allMenus = document.querySelectorAll('.dropdown-menu');
+        const currentMenu = toggle.nextElementSibling;
+        const isOpen = currentMenu.classList.contains('show');
+        allMenus.forEach(menu => {
+          menu.classList.remove('show');
+          menu.previousElementSibling.setAttribute('aria-expanded', 'false');
+        });
+        currentMenu.classList.toggle('show');
+        toggle.setAttribute('aria-expanded', !isOpen);
+        e.stopPropagation();
+      });
+    });
+
+    document.querySelectorAll('#date-menu, #salary-menu').forEach(menu => {
+      menu.addEventListener('click', e => {
+        e.stopPropagation();
+      });
+    });
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.classList.remove('show');
+        menu.previousElementSibling.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', () => fetchEmployees(1));
+    document.querySelectorAll('.filter-department').forEach(cb => cb.addEventListener('change', () => fetchEmployees(1)));
+    document.querySelectorAll('.filter-status').forEach(cb => cb.addEventListener('change', () => fetchEmployees(1)));
+    document.getElementById('dateFrom').addEventListener('change', () => fetchEmployees(1));
+    document.getElementById('dateTo').addEventListener('change', () => fetchEmployees(1));
+    document.getElementById('salaryMin').addEventListener('input', () => fetchEmployees(1));
+    document.getElementById('salaryMax').addEventListener('input', () => fetchEmployees(1));
+    document.getElementById('sortBy').addEventListener('change', () => fetchEmployees(1));
+
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadModal = document.getElementById('uploadModal');
+    const uploadCancelBtn = document.getElementById('uploadCancelBtn');
+    uploadBtn.addEventListener('click', () => {
+      uploadModal.style.display = 'flex';
+    });
+    uploadCancelBtn.addEventListener('click', () => {
+      uploadModal.style.display = 'none';
+      document.getElementById('uploadForm').reset();
+    });
+    uploadModal.addEventListener('click', (e) => {
+      if (e.target === uploadModal) {
+        uploadModal.style.display = 'none';
+        document.getElementById('uploadForm').reset();
+      }
+    });
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const file = document.getElementById('uploadFileInput').files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const response = await fetch(`${BASE_URL}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        if (!response.ok) throw new Error((await response.json()).error);
+        const { message } = await response.json();
+        uploadModal.style.display = 'none';
+        document.getElementById('uploadForm').reset();
+        document.getElementById('disclaimer').style.display = 'block';
+        document.getElementById('disclaimer').innerHTML = `${message}. <a href="#" id="viewUploadHistory">View all uploaded files</a>`;
+        fetchEmployees(1);  // Reset to page 1 after upload
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    document.getElementById('downloadBtn').addEventListener('click', async () => {
+      const params = new URLSearchParams();
+      
+      // Add search term
+      const searchTerm = searchInput.value.trim();
+      if (searchTerm !== "") {
+        params.append("search", searchTerm);
+      }
+
+      // Add department filters
+      const departments = Array.from(document.querySelectorAll(".filter-department:checked")).map(cb => cb.value);
+      if (departments.length > 0) {
+        departments.forEach(dep => params.append("department", dep));
+      }
+
+      // Add status filters
+      const statuses = Array.from(document.querySelectorAll(".filter-status:checked")).map(cb => cb.value);
+      if (statuses.length > 0) {
+        statuses.forEach(st => params.append("status", st));
+      }
+
+      // Add date range
+      const fromDate = document.getElementById("dateFrom").value;
+      if (fromDate) {
+        params.append("from_date", fromDate);
+      }
+      const toDate = document.getElementById("dateTo").value;
+      if (toDate) {
+        params.append("to_date", toDate);
+      }
+
+      // Add salary range
+      const minSalary = document.getElementById("salaryMin").value;
+      if (minSalary !== "" && !isNaN(Number(minSalary))) {
+        params.append("min_salary", minSalary);
+      }
+      const maxSalary = document.getElementById("salaryMax").value;
+      if (maxSalary !== "" && !isNaN(Number(maxSalary))) {
+        params.append("max_salary", maxSalary);
+      }
+
+      // Add sorting
+      const sortBy = document.getElementById("sortBy").value;
+      if (sortBy) {
+        params.append("sort_by", sortBy);
+      }
+
+      try {
+        const response = await fetch(`${BASE_URL}/api/download?${params}`);
+        if (!response.ok) throw new Error('Failed to download CSV');
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'employees.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        alert('Error downloading file: ' + error.message);
+      }
+    });
+
+    document.addEventListener('click', async (e) => {
+      if (e.target.id === 'viewUploadHistory') {
+        e.preventDefault();
+        try {
+          const response = await fetch(`${BASE_URL}/api/upload_history`);
+          if (!response.ok) throw new Error('Failed to fetch upload history');
+          const uploads = await response.json();
+          const uploadHistoryList = document.getElementById('uploadHistoryList');
+          uploadHistoryList.innerHTML = uploads.length === 0
+            ? '<li>No files uploaded yet.</li>'
+            : uploads.map(file => `<li>${file.name} - Uploaded on ${file.timestamp}</li>`).join('');
+          document.getElementById('uploadHistoryModal').style.display = 'flex';
+        } catch (error) {
+          alert(error.message);
+        }
+      }
+    });
+
+    const uploadHistoryCloseBtn = document.getElementById('uploadHistoryCloseBtn');
+    uploadHistoryCloseBtn.addEventListener('click', () => {
+      document.getElementById('uploadHistoryModal').style.display = 'none';
+    });
+
+    document.getElementById('uploadHistoryModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('uploadHistoryModal')) {
+        document.getElementById('uploadHistoryModal').style.display = 'none';
+      }
+    });
+
+    function clearFilters() {
+      searchInput.value = '';
+      document.querySelectorAll('.filter-department').forEach(cb => cb.checked = false);
+      document.querySelectorAll('.filter-status').forEach(cb => cb.checked = false);
+      document.getElementById('dateFrom').value = '';
+      document.getElementById('dateTo').value = '';
+      document.getElementById('salaryMin').value = '';
+      document.getElementById('salaryMax').value = '';
+      document.getElementById('sortBy').value = 'name-asc';
+      fetchEmployees(1);
+    }
+
+    async function fetchEmployees(page = 1) {
+      currentPage = page;
+      const params = new URLSearchParams();
+      const searchTerm = searchInput.value.trim();
+      if (searchTerm !== "") {
+        params.append("search", searchTerm);
+      }
+      const departments = Array.from(document.querySelectorAll(".filter-department:checked")).map(cb => cb.value);
+      if (departments.length > 0) {
+        departments.forEach(dep => params.append("department", dep));
+      }
+      const statuses = Array.from(document.querySelectorAll(".filter-status:checked")).map(cb => cb.value);
+      if (statuses.length > 0) {
+        statuses.forEach(st => params.append("status", st));
+      }
+      const fromDate = document.getElementById("dateFrom").value;
+      if (fromDate) {
+        params.append("from_date", fromDate);
+      }
+      const toDate = document.getElementById("dateTo").value;
+      if (toDate) {
+        params.append("to_date", toDate);
+      }
+      const minSalary = document.getElementById("salaryMin").value;
+      if (minSalary !== "" && !isNaN(Number(minSalary))) {
+        params.append("min_salary", minSalary);
+      }
+      const maxSalary = document.getElementById("salaryMax").value;
+      if (maxSalary !== "" && !isNaN(Number(maxSalary))) {
+        params.append("max_salary", maxSalary);
+      }
+      const sortBy = document.getElementById("sortBy").value || "name-asc";
+      params.append("sort_by", sortBy);
+      params.append("page", page);
+      params.append("per_page", rowsPerPage);
+
+      try {
+        const response = await fetch(`${BASE_URL}/api/employees?${params.toString()}`);
+        if (!response.ok) {
+          const errorBody = await response.json();
+          throw new Error(errorBody.error || "Failed to fetch employees");
+        }
+        const data = await response.json();
+        renderTable(data.employees);
+        updatePagination(data.total, data.pages);
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    function updatePagination(totalRows, totalPages) {
+      const paginationDiv = document.getElementById('pagination');
+      paginationDiv.innerHTML = '';
+      const prevBtn = document.createElement('button');
+      prevBtn.textContent = 'Prev';
+      prevBtn.className = 'btn btn-outline-primary btn-sm';
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.onclick = () => fetchEmployees(currentPage - 1);
+      paginationDiv.appendChild(prevBtn);
+      for (let i = 1; i <= totalPages; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.textContent = i;
+        pageBtn.className = `btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-primary'}`;
+        pageBtn.onclick = () => fetchEmployees(i);
+        paginationDiv.appendChild(pageBtn);
+      }
+      const nextBtn = document.createElement('button');
+      nextBtn.textContent = 'Next';
+      nextBtn.className = 'btn btn-outline-primary btn-sm';
+      nextBtn.disabled = currentPage === totalPages;
+      nextBtn.onclick = () => fetchEmployees(currentPage + 1);
+      paginationDiv.appendChild(nextBtn);
+    }
+
+    const employeesBtn = document.getElementById('employeesBtn');
+    const modal = document.getElementById('employeeFormModal');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const employeeForm = document.getElementById('employeeForm');
+    let editingId = null;
+
+    employeesBtn.addEventListener('click', () => {
+      modal.style.display = 'flex';
+      document.getElementById('modalTitle').textContent = 'Add Employee';
+      document.getElementById('submitBtn').textContent = 'Add Employee';
+      employeeForm.reset();
+      editingId = null;
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+      employeeForm.reset();
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+        employeeForm.reset();
+      }
+    });
+
+    employeeForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('empName').value.trim();
+      const department = document.getElementById('empDepartment').value;
+      const joining_date = document.getElementById('empJoiningDate').value;
+      const salary = document.getElementById('empSalary').value;
+      const status = document.getElementById('empStatus').value;
+
+      if (!name || !department || !joining_date || !salary || !status) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      const data = {
+        name,
+        department,
+        joining_date,
+        salary: parseInt(salary, 10),
+        status
+      };
+
+      const url = editingId ? `${BASE_URL}/api/employees/${editingId}` : `${BASE_URL}/api/employees`;
+      const method = editingId ? 'PUT' : 'POST';
+      try {
+        const response = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.errors ? errorData.errors.join('\n') : 'Failed to save employee');
+        }
+
+        modal.style.display = 'none';
+        employeeForm.reset();
+        editingId = null;
+
+        await fetchEmployees(1);
+        alert('Employee added successfully! If the new employee is not visible, please adjust the filters or sort order.');
+      } catch (error) {
+        alert('Error saving employee:\n' + error.message);
+      }
+    });
+
+    fetchEmployees(1);
+  </script>
+</body>
+</html>
