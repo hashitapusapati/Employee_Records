@@ -6,7 +6,7 @@ A responsive and feature-rich **Flask web application** to manage employee data 
 
 ### 🖼️ Preview
 
-![Employee Records UI](b49c5a1c-feea-4b21-862c-f6ded70da3f1.png)
+![Employee Records Screenshot](https://github.com/hashitapusapati/Employee_Records/blob/main/employeerec%20.png?raw=true)
 
 ---
 
